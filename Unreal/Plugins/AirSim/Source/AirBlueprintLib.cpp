@@ -27,6 +27,14 @@
 #include "ARFilter.h"
 #include "AssetRegistryModule.h"
 
+// For assigned custom stencil ID.
+#include <fstream>
+#include <regex>
+#include <unordered_set>
+#include "Misc/Paths.h"
+#include "Interfaces/IPluginManager.h"
+#include "common/common_utils/json.hpp"
+
 /*
 //TODO: change naming conventions to same as other files?
 Naming conventions in this file:
@@ -39,6 +47,110 @@ bool UAirBlueprintLib::log_messages_hidden_ = false;
 msr::airlib::AirSimSettings::SegmentationSetting::MeshNamingMethodType UAirBlueprintLib::mesh_naming_method_ =
     msr::airlib::AirSimSettings::SegmentationSetting::MeshNamingMethodType::OwnerName;
 IImageWrapperModule* UAirBlueprintLib::image_wrapper_module_ = nullptr;
+
+// Assigned custon stencil IDs.
+const int UAirBlueprintLib::max_assigned_id_ = 254; // 255 is used for special purpose.
+const int UAirBlueprintLib::invalid_assigned_id_ = 254;
+int UAirBlueprintLib::current_assigned_id_ = 0; // 0 is used for special purpose.
+std::map<std::string, KeyMatch> UAirBlueprintLib::assigned_id_map_;
+std::map<std::string, int> UAirBlueprintLib::buffered_id_map_;
+
+static nlohmann::json ReadJson(const std::string& fn)
+{
+    nlohmann::json json_obj;
+    
+    std::ifstream ifs(fn);
+    if (ifs) {
+        ifs >> json_obj;
+    }
+
+    ifs.close();
+
+    return json_obj;
+}
+
+void UAirBlueprintLib::InitializeAssignedIDMap()
+{
+
+    if (!assigned_id_map_.empty()) {
+        std::stringstream ss;
+        ss << "assigned_id_map_ must be empty before initilization. ";
+        throw std::runtime_error(ss.str());
+    }
+
+    // Get the folder of the current plugin.
+    FString base_dir = IPluginManager::Get().FindPlugin(TEXT("AirSim"))->GetBaseDir();
+    FString json_dir = FPaths::Combine(base_dir, TEXT("Content"), TEXT("HUDAssets"), TEXT("seg_name_map.json"));
+
+    if (!FPaths::FileExists(json_dir)) {
+        std::stringstream ss;
+        ss << TCHAR_TO_UTF8(*json_dir) << " does not exist. ";
+        throw std::runtime_error(ss.str());
+    }
+
+    // Read the json file.
+    auto json_obj = ReadJson(TCHAR_TO_UTF8(*json_dir));
+
+    // Insert items to assigned_id_map_.
+    for (const auto& m : json_obj["name_map"]) {
+        const std::string name = m["name"];
+        assigned_id_map_[name] = KeyMatch(name, m["id"]);
+    }
+}
+
+std::string UAirBlueprintLib::ExtractIDMappingPart(const std::string& query)
+{
+    std::smatch matches;
+    std::regex mapping_part_re("^(.+?)_"); // String ends with "_" at the beginning.
+
+    if (!std::regex_search(query, matches, mapping_part_re)) return std::string("");
+
+    const int N = matches[0].length();
+    return matches.str().substr(0, N-1);
+}
+
+std::pair<bool, int> UAirBlueprintLib::MatchAssignedID(const std::string& query)
+{
+    auto res = std::make_pair(false, -1);
+
+    for (auto& assignment : assigned_id_map_) {
+        if (assignment.second.isMatched(query)) {
+            res.first = true;
+            res.second = assignment.second.id_;
+            break;
+        }
+    }
+
+    return res;
+}
+
+int UAirBlueprintLib::GetNextAssignedID()
+{
+    current_assigned_id_++;
+    if (current_assigned_id_ >= max_assigned_id_) {
+        std::stringstream ss;
+        ss << "current_assigned_id_ reaches max_assigned_id_ (" << max_assigned_id_ << ". ";
+        throw std::runtime_error(ss.str());
+    }
+    return current_assigned_id_;
+}
+
+void UAirBlueprintLib::WriteBufferedIDMap(const FString& fn)
+{
+    // Create the JSON object.
+    nlohmann::json json_obj;
+    json_obj["name_map"] = buffered_id_map_;
+
+    std::ofstream ofs(TCHAR_TO_UTF8(*fn));
+    if (!ofs) {
+        std::stringstream ss;
+        ss << "Cannot write to " << TCHAR_TO_UTF8(*fn) << ". ";
+        throw std::runtime_error(ss.str());
+    }
+    ofs << std::setw(4) << json_obj << std::endl;
+
+    ofs.close();
+}
 
 void UAirBlueprintLib::LogMessageString(const std::string &prefix, const std::string &suffix, LogDebugLevel level, float persist_sec)
 {
@@ -368,7 +480,61 @@ std::string UAirBlueprintLib::GetMeshName(ALandscapeProxy* mesh)
     return std::string(TCHAR_TO_UTF8(*(mesh->GetName())));
 }
 
-void UAirBlueprintLib::InitializeMeshStencilIDs(bool ignore_existing)
+void UAirBlueprintLib::ScanMeshName()
+{
+    std::unordered_set<std::string> name_set;
+
+    for (TObjectIterator<UStaticMeshComponent> comp; comp; ++comp)
+    {
+        const std::string mesh_name = GetMeshNameLowerCaseNonDefault(*comp);
+        if (mesh_name.empty()) continue;
+        
+        const std::string name_part = ExtractIDMappingPart(mesh_name);
+        if (!name_part.empty()) name_set.insert(name_part);
+    }
+    for (TObjectIterator<USkinnedMeshComponent> comp; comp; ++comp)
+    {
+        const std::string mesh_name = GetMeshNameLowerCaseNonDefault(*comp);
+        if (mesh_name.empty()) continue;
+
+        const std::string name_part = ExtractIDMappingPart(mesh_name);
+        if (!name_part.empty()) name_set.insert(name_part);
+    }
+    /*for (TObjectIterator<UFoliageType> comp; comp; ++comp)
+    {
+        const std::string mesh_name = GetMeshNameLowerCaseNonDefault(*comp);
+        if (mesh_name.empty()) continue;
+
+        const std::string name_part = ExtractIDMappingPart(mesh_name);
+        if (!name_part.empty()) name_set.insert(name_part);
+    }*/
+    for (TObjectIterator<ALandscapeProxy> comp; comp; ++comp)
+    {
+        const std::string mesh_name = GetMeshNameLowerCaseNonDefault(*comp);
+        if (mesh_name.empty()) continue;
+
+        const std::string name_part = ExtractIDMappingPart(mesh_name);
+        if (!name_part.empty()) name_set.insert(name_part);
+    }
+
+    // Convert the unordered_set into a ordered map.
+    buffered_id_map_.clear();
+    for (const auto& name : name_set) {
+        buffered_id_map_[name] = -1;
+    }
+
+    // Re-assign IDs in buffered_id_map_ according to the current order.
+    int i = 1;
+    for (auto& item : buffered_id_map_) {
+        if (i >= max_assigned_id_) {
+            UE_LOG(LogTemp, Error, TEXT("max_assigned_id_ (%d) reached. "), max_assigned_id_);
+            break;
+        }
+        item.second = i++;
+    }
+}
+
+void UAirBlueprintLib::AssignMeshStencilIDs(bool ignore_existing)
 {
     for (TObjectIterator<UStaticMeshComponent> comp; comp; ++comp)
     {
@@ -385,6 +551,45 @@ void UAirBlueprintLib::InitializeMeshStencilIDs(bool ignore_existing)
     for (TObjectIterator<ALandscapeProxy> comp; comp; ++comp)
     {
         InitializeObjectStencilID(*comp, ignore_existing);
+    }
+
+    // Save the buffered_id_map_ to a JSON file.
+    // Get the folder of the current plugin.
+    //FString base_dir = IPluginManager::Get().FindPlugin(TEXT("AirSim"))->GetBaseDir();
+    //FString json_dir = FPaths::Combine(base_dir, TEXT("Content"), TEXT("HUDAssets"), TEXT("buffered_id_map.json"));
+
+    // Peek at the World by assuming that there is at least one static mesh.
+    FString level_map_name("");
+    for (TObjectIterator<UStaticMeshComponent> comp; comp; ++comp) {
+        const auto world = comp->GetWorld();
+        if (world) {
+            const FString temp_map_name = world->GetMapName();
+            if (!temp_map_name.Equals(TEXT("Transient"))) {
+                level_map_name = temp_map_name;
+                break;
+            }
+        }
+    }
+
+    if (level_map_name.Len() == 0) UE_LOG(LogTemp, Warning, TEXT("There are no static meshes in this level/map that have a valid World! "));
+
+    //UE_LOG(LogTemp, Warning, TEXT("level_map_name = %s"), *level_map_name);
+
+    // Write the JSON file.
+    FString base_dir = FPaths::ProjectContentDir();
+    FString base_name = FString::Printf(TEXT("%s%s%s"), TEXT("buffered_id_map_"), *level_map_name, TEXT(".json"));
+    FString json_dir = FPaths::Combine(base_dir, base_name);
+    WriteBufferedIDMap(json_dir);
+}
+
+void UAirBlueprintLib::InitializeMeshStencilIDs(bool ignore_existing)
+{
+    try {
+        ScanMeshName();
+        AssignMeshStencilIDs(ignore_existing);
+    }
+    catch ( std::exception& exc) {
+        UE_LOG(LogTemp, Error, TEXT("Exception thrown during initializing the cunstom stencil IDs: %s"), *(FString(exc.what())));
     }
 }
 

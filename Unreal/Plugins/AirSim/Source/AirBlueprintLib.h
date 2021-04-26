@@ -24,7 +24,33 @@
 #include "common/AirSimSettings.hpp"
 #include <string>
 #include <regex>
+
+// Assigned custom stencil ID.
+#include <map>
+#include <memory>
+
 #include "AirBlueprintLib.generated.h"
+
+struct KeyMatch {
+    KeyMatch()
+        : id_{-1}
+        , name_regex_{nullptr}
+    {}
+
+    KeyMatch(const std::string& name, int id)
+        : id_{ id }
+        , name_regex_{new std::regex(name)}
+    {}
+
+    bool isMatched(const std::string& query) {
+        verify(name_regex_ != nullptr);
+        return std::regex_search(query, matches_, *name_regex_);
+    }
+
+    int id_;
+    std::shared_ptr<std::regex> name_regex_;
+    std::smatch matches_;
+};
 
 class ULevelStreamingDynamic;
 
@@ -103,6 +129,8 @@ public:
     static bool SetMeshStencilID(const std::string& mesh_name, int object_id,
         bool is_name_regex = false);
     static int GetMeshStencilID(const std::string& mesh_name);
+    static void ScanMeshName();
+    static void AssignMeshStencilIDs(bool ignore_existing);
     static void InitializeMeshStencilIDs(bool ignore_existing);
 
     static bool IsInGameThread();
@@ -198,27 +226,82 @@ public:
     static void CompressImageArray(int32 width, int32 height, const TArray<FColor> &src, TArray<uint8> &dest);
     static std::vector<msr::airlib::MeshPositionVertexBuffersResponse> GetStaticMeshComponents();
 private:
+    //template<typename T>
+    //static void InitializeObjectStencilID(T* mesh, bool ignore_existing = true)
+    //{
+    //    std::string mesh_name = common_utils::Utils::toLower(GetMeshName(mesh));
+    //    if (mesh_name == "" || common_utils::Utils::startsWith(mesh_name, "default_")) {
+    //        //common_utils::Utils::DebugBreak();
+    //        return;
+    //    }
+
+    //    FString name(mesh_name.c_str());
+    //    int hash = 5;
+    //    for (int idx = 0; idx < name.Len(); ++idx) {
+    //        auto char_num = UKismetStringLibrary::GetCharacterAsNumber(name, idx);
+    //        if (char_num < 97)
+    //            continue; //numerics and other punctuations
+    //        hash += char_num;
+    //    }
+    //    if (ignore_existing || mesh->CustomDepthStencilValue == 0) { //if value is already set then don't bother
+    //        SetObjectStencilID(mesh, hash % 256);
+    //    }
+    //}
+
+    static void InitializeAssignedIDMap();
+    static std::string ExtractIDMappingPart(const std::string& query);
+    static std::pair<bool, int> MatchAssignedID(const std::string& query);
+
     template<typename T>
-    static void InitializeObjectStencilID(T* mesh, bool ignore_existing = true)
-    {
+    static std::string GetMeshNameLowerCaseNonDefault(T* mesh) {
         std::string mesh_name = common_utils::Utils::toLower(GetMeshName(mesh));
         if (mesh_name == "" || common_utils::Utils::startsWith(mesh_name, "default_")) {
             //common_utils::Utils::DebugBreak();
-            return;
+            return "";
         }
-        FString name(mesh_name.c_str());
-        int hash = 5;
-        for (int idx = 0; idx < name.Len(); ++idx) {
-            auto char_num = UKismetStringLibrary::GetCharacterAsNumber(name, idx);
-            if (char_num < 97)
-                continue; //numerics and other punctuations
-            hash += char_num;
-        }
-        if (ignore_existing || mesh->CustomDepthStencilValue == 0) { //if value is already set then don't bother
-            SetObjectStencilID(mesh, hash % 256);
+        return mesh_name;
+    }
+
+    static int GetNextAssignedID();
+
+    template<typename T>
+    static void InitializeObjectStencilID(T* mesh, bool ignore_existing = true)
+    {
+        // Assign custom stencil ID.
+        if (ignore_existing || mesh->CustomDepthStencilValue == 0) {
+            // Get the mesh name.
+            std::string mesh_name = GetMeshNameLowerCaseNonDefault(mesh);
+            if (mesh_name == "") return;
+
+            // Extract the part for mapping ids from mesh_name.
+            const std::string name_part = ExtractIDMappingPart(mesh_name);
+            if (name_part.empty()) {
+                std::stringstream ss;
+                ss << "Empty mapping part of mesh name " << mesh_name << ". ";
+                
+                // Assign the invalid id.
+                SetObjectStencilID(mesh, invalid_assigned_id_);
+                return;
+            }
+
+            // Check if name_part is already in buffered_id_map_.
+            const auto iter = buffered_id_map_.find(name_part);
+            if (iter != buffered_id_map_.end()) {
+                // Already buffered.
+                SetObjectStencilID(mesh, iter->second);
+                return;
+            }
+
+            // Add new item to buffered_id_map_.
+            const int id = GetNextAssignedID();
+            buffered_id_map_[name_part] = id;
+
+            // Update this mesh's custom stencil ID.
+            SetObjectStencilID(mesh, id);
         }
     }
 
+    static void WriteBufferedIDMap(const FString& fn);
 
     template<typename T>
     static void SetObjectStencilIDIfMatch(T* mesh, int object_id,
@@ -290,5 +373,12 @@ private:
     static msr::airlib::AirSimSettings::SegmentationSetting::MeshNamingMethodType mesh_naming_method_;
 
     static IImageWrapperModule* image_wrapper_module_;
+
+    // Assigned custom stencil ID.
+    static const int max_assigned_id_;
+    static const int invalid_assigned_id_;
+    static int current_assigned_id_;
+    static std::map<std::string, KeyMatch> assigned_id_map_; // The name map from the JSON file.
+    static std::map<std::string, int> buffered_id_map_; // The name map buffered for the current environment.
 };
 

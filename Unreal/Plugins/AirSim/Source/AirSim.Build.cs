@@ -79,7 +79,7 @@ public class AirSim : ModuleRules
         bEnableExceptions = true;
 
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ImageWrapper", "RenderCore", "RHI", "AssetRegistry", "PhysicsCore", "PhysXVehicles", "PhysXVehicleLib", "PhysX", "APEX", "Landscape" });
-        PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore", "Projects" });
 
         //suppress VC++ proprietary warnings
         PublicDefinitions.Add("_SCL_SECURE_NO_WARNINGS=1");
@@ -88,6 +88,10 @@ public class AirSim : ModuleRules
 
         PublicIncludePaths.Add(Path.Combine(AirLibPath, "include"));
         PublicIncludePaths.Add(Path.Combine(AirLibPath, "deps", "eigen3"));
+
+        // For ThirdParty sub-directory.
+        // PublicIncludePaths.Add(Path.Combine(ModulePath, "ThirdParty", "nlohmann_json", "include"));
+
         AddOSLibDependencies(Target);
 
         SetupCompileMode(CompileMode.HeaderOnlyWithRpc, Target);
