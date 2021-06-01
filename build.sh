@@ -106,12 +106,19 @@ cp $build_dir/output/lib/libAirLib.a AirLib/lib
 cp $build_dir/output/lib/libMavLinkCom.a AirLib/deps/MavLinkCom/lib
 cp $build_dir/output/lib/librpc.a AirLib/deps/rpclib/lib/librpc.a
 
+## Copy CustomizedInterpolation library.
+mkdir -p CustomizedInterpolation/lib
+cp $build_dir/CustomizedInterpolation/lib/*.a CustomizedInterpolation/lib/
+
 # Update AirLib/lib, AirLib/deps, Plugins folders with new binaries
 rsync -a --delete $build_dir/output/lib/ AirLib/lib/x64/$folder_name
 rsync -a --delete external/rpclib/rpclib-2.2.1/include AirLib/deps/rpclib
 rsync -a --delete MavLinkCom/include AirLib/deps/MavLinkCom
 rsync -a --delete AirLib Unreal/Plugins/AirSim/Source
 rm -rf Unreal/Plugins/AirSim/Source/AirLib/src
+
+rsync -a --delete CustomizedInterpolation Unreal/Plugins/AirSim/Source
+rm -rf Unreal/Plugins/AirSim/Source/CustomizedInterpolation/src
 
 # Update Blocks project
 Unreal/Environments/Blocks/clean.sh

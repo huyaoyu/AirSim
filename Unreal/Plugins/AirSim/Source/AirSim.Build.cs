@@ -30,6 +30,12 @@ public class AirSim : ModuleRules
         get { return Path.Combine(AirSimPluginPath, "Dependencies"); }
     }
 
+    // Customized interpolation.
+    private string CustomizedInterpolationPath
+    {
+        get { return Path.Combine(ModulePath, "CustomizedInterpolation"); }
+    }
+
     private enum CompileMode
     {
         HeaderOnlyNoRpc,
@@ -54,6 +60,10 @@ public class AirSim : ModuleRules
                 PublicDefinitions.Add("AIRLIB_HEADER_ONLY=1");
                 AddLibDependency("AirLib", Path.Combine(AirLibPath, "lib"), "AirLib", Target, false);
                 LoadAirSimDependency(Target, "rpclib", "rpc");
+
+                // Customized interpolation.
+                AddLibDependency("CustomizedInterpolation", Path.Combine(CustomizedInterpolationPath, "lib"), "CustomizedInterpolation", Target, false);
+
                 break;
 
             case CompileMode.CppCompileNoRpc:
@@ -88,6 +98,10 @@ public class AirSim : ModuleRules
 
         PublicIncludePaths.Add(Path.Combine(AirLibPath, "include"));
         PublicIncludePaths.Add(Path.Combine(AirLibPath, "deps", "eigen3"));
+
+        // Customized interpolation.
+        PublicIncludePaths.Add(Path.Combine(CustomizedInterpolationPath, "include"));
+
         AddOSLibDependencies(Target);
 
         SetupCompileMode(CompileMode.HeaderOnlyWithRpc, Target);
