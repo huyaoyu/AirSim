@@ -65,7 +65,8 @@ static void addNewRenderParamsCube(
     else 
         textureTarget = capture->TextureTarget;
 
-    render_params.push_back(std::make_shared<RenderRequest::RenderParams>(capture, textureTarget, request.pixels_as_float, request.compress));
+    const bool cube_nearest = camera->getNearestFlag( request.image_type, false );
+    render_params.push_back(std::make_shared<RenderRequest::RenderParams>(capture, textureTarget, request.pixels_as_float, request.compress, cube_nearest));
 }
 
 void UnrealImageCapture::getSceneCaptureImage(const std::vector<msr::airlib::ImageCaptureBase::ImageRequest>& requests, 

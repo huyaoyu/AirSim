@@ -8,8 +8,9 @@ pushd "$SCRIPT_DIR" >/dev/null
 set -e
 set -x
 
-rsync -a  --exclude 'temp' --delete Plugins/AirSim ../../Plugins/
-rsync -a  --exclude 'temp' --delete Plugins/AirSim/Source/AirLib ../../../
+rsync -a --exclude='temp' --delete Plugins/AirSim ../../Plugins/
+rsync -a --exclude='*/src*' --delete Plugins/AirSim/Source/AirLib ../../../
+rsync -a --exclude='*/src*' --delete Plugins/AirSim/Source/CustomizedInterpolation ../../../
 
 popd >/dev/null
 set +x

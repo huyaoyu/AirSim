@@ -104,6 +104,7 @@ void APIPCamera::BeginPlay()
     for (unsigned int cube_type = 0; cube_type < cubeTypeCount(); ++cube_type) {
         // Capture sources are defined in the Blue Print.
         render_targets_cube_[cube_type] = NewObject<UTextureRenderTargetCube>();
+        cube_nearest_flag_.push_back(false);
     }
 
     onViewModeChanged(false);
@@ -383,6 +384,10 @@ void APIPCamera::setupCameraFromSettings(const APIPCamera::CameraSetting& camera
                 updateCaptureComponentSettingCube(captures_cube_[cube_type], render_targets_cube_[cube_type], false, 
                         image_type_to_pixel_format_map_[image_type], capture_setting,
                         false);
+
+                // cube_nearest.
+                cube_nearest_flag_[cube_type] = capture_setting.cube_nearest;
+
                 // No noise setting for cubes.
             }
         }
@@ -633,6 +638,15 @@ USceneCaptureComponent* APIPCamera::getCaptureComponentGeneral( const APIPCamera
     } else {
         return getCaptureComponent(type, if_active);
     }
+}
+
+bool APIPCamera::getNearestFlag( const ImageType type, bool if_active ) {
+    const unsigned int image_type = Utils::toNumeric(type);
+    const unsigned int cube_type  = ImageCaptureBase::getCubeTypeIndex(type);
+
+    if (!if_active || camera_type_enabled_[image_type])
+        return cube_nearest_flag_[cube_type];
+    return false;
 }
 
 void APIPCamera::disableAllPIP()

@@ -143,6 +143,9 @@ public: //types
         float target_gamma = Utils::nan<float>(); //1.0f; //This would be reset to kSceneTargetGamma for scene as default
         int projection_mode = 0; // ECameraProjectionMode::Perspective
         float ortho_width = Utils::nan<float>();
+
+        // Cube.
+        bool cube_nearest = false;
     };
 
     struct NoiseSetting {
@@ -1054,6 +1057,9 @@ private:
             throw std::invalid_argument(std::string("CaptureSettings projection_mode has invalid value in settings_json ") + projection_mode);
 
         capture_setting.ortho_width = settings_json.getFloat("OrthoWidth", capture_setting.ortho_width);
+
+        // Cube.
+        capture_setting.cube_nearest = settings_json.getBool("CubeNearest", capture_setting.cube_nearest);
     }
 
     static void loadSubWindowsSettings(const Settings& settings_json, std::vector<SubwindowSetting>& subwindow_settings)

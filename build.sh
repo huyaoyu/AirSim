@@ -117,6 +117,7 @@ rsync -a --delete MavLinkCom/include AirLib/deps/MavLinkCom
 rsync -a --delete AirLib Unreal/Plugins/AirSim/Source
 rm -rf Unreal/Plugins/AirSim/Source/AirLib/src
 
+# Copy CustomizedInterpolation include files.
 rsync -a --delete CustomizedInterpolation Unreal/Plugins/AirSim/Source
 rm -rf Unreal/Plugins/AirSim/Source/CustomizedInterpolation/src
 

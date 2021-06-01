@@ -60,6 +60,7 @@ public:
         // Cube.
         USceneCaptureComponentCube* const render_component_cube;
         UTextureRenderTargetCube* render_target_cube;
+        bool nearest_cube = false;
         bool is_cube; // Set true for cube.
 
         RenderParams(USceneCaptureComponent2D * render_component_val, UTextureRenderTarget2D* render_target_val, bool pixels_as_float_val, bool compress_val)
@@ -69,14 +70,19 @@ public:
         }
 
         // Overload for cube.
-        RenderParams( USceneCaptureComponentCube* render_component_val, UTextureRenderTargetCube* render_target_val, bool pixels_as_float_val, bool compress_val )
+        RenderParams( USceneCaptureComponentCube* render_component_val, UTextureRenderTargetCube* render_target_val, bool pixels_as_float_val, bool compress_val, bool nearest_cube_val=false )
         : render_component(nullptr), render_target(nullptr), pixels_as_float(pixels_as_float_val), compress(compress_val)
-        , render_component_cube(render_component_val), render_target_cube(render_target_val), is_cube(true)
+        , render_component_cube(render_component_val), render_target_cube(render_target_val), nearest_cube(nearest_cube_val), is_cube(true)
         {
         }
     };
 
     struct RenderResult {
+        // Cube.
+        RenderResult() {
+            bmp_float_6.SetNum(6, true);
+        }
+
         TArray<uint8> image_data_uint8;
         TArray<float> image_data_float;
 
@@ -86,6 +92,7 @@ public:
         // Cube.
         TArray64<uint8> cube_raw;
         TArray64<uint8> cube_image_data;
+        TArray<TArray<FFloat16Color>> bmp_float_6;
 
         int width;
         int height;

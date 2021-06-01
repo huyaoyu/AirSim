@@ -61,6 +61,7 @@ public:
     USceneCaptureComponentCube* getCaptureComponentCube( const ImageType type, bool if_active );
     UTextureRenderTargetCube* getRenderTargetCube( const ImageType type, bool if_active );
     USceneCaptureComponent* getCaptureComponentGeneral( const ImageType type, bool if_active );
+    bool getNearestFlag( const ImageType type, bool if_active );
 
     msr::airlib::Pose getPose() const;
 
@@ -88,6 +89,9 @@ private: //members
     float gimbal_stabilization_;
     const NedTransform* ned_transform_;
     TMap<int, EPixelFormat> image_type_to_pixel_format_map_;
+
+    // Cube.
+    std::vector<bool> cube_nearest_flag_;
 
 private: //methods
     typedef common_utils::Utils Utils;

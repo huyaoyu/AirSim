@@ -9,7 +9,8 @@ set -x
 
 ./clean.sh
 
-rsync -a  --exclude 'temp' --delete ../../Plugins/AirSim Plugins/
-rsync -a  --exclude 'temp' --delete ../../../AirLib Plugins/AirSim/Source/
+rsync -a --exclude 'temp' --delete ../../Plugins/AirSim Plugins/
+rsync -a --exclude='*/src' --delete ../../../AirLib Plugins/AirSim/Source/
+rsync -a --exclude='*/src' --delete ../../../CustomizedInterpolation Plugins/AirSim/Source/
 
 popd >/dev/null

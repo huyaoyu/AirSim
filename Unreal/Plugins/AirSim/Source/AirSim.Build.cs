@@ -101,6 +101,13 @@ public class AirSim : ModuleRules
 
         // Customized interpolation.
         PublicIncludePaths.Add(Path.Combine(CustomizedInterpolationPath, "include"));
+        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_core.a"));
+        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_highgui.a"));
+        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_imgcodecs.a"));
+        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_imgproc.a"));
+        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libippicv.a"));
+        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libippiw.a"));
+        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libzlib.a"));
 
         AddOSLibDependencies(Target);
 

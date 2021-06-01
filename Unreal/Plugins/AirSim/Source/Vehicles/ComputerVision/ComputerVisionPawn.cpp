@@ -123,8 +123,5 @@ void AComputerVisionPawn::BeginPlay()
 {
     Super::BeginPlay();
 
-    UE_LOG(LogTemp, Warning, TEXT("Build 016. "));
+    UE_LOG(LogTemp, Warning, TEXT("Build 037. "));
 }
-
-
-

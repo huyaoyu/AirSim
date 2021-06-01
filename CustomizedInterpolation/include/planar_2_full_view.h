@@ -51,7 +51,7 @@ namespace p2f {
     }
 
     static inline std::pair<int, int> ue_neg_z_2_ocv(int width, int x, int y) {
-        return { width - 1 - y , x };
+        return { width - 1 - y, x };
     }
 
     extern const std::vector<std::function<std::pair<int, int>(int, int, int)>> ue_coor_2_ocv;
