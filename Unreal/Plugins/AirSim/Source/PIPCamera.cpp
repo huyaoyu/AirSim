@@ -84,7 +84,7 @@ void APIPCamera::PostInitializeComponents()
     captures_cube_[ImageCaptureBase::getCubeTypeIndex( ImageType::CubeDepth )] = 
         UAirBlueprintLib::GetActorComponent<USceneCaptureComponentCube>( this, TEXT("CubeDepthCaptureComponent") );
     
-    for (unsigned int i = 0; i < imageTypeCount(); ++i) {
+    for (unsigned int i = 0; i < imageTypeCount2D(); ++i) {
         detections_[i] = NewObject<UDetectionComponent>(this);
         if (detections_[i]) {
             detections_[i]->SetupAttachment(captures_[i]);
@@ -613,6 +613,8 @@ void APIPCamera::enableCaptureComponent(const APIPCamera::ImageType type, bool i
     } else {
         USceneCaptureComponentCube* capture = getCaptureComponentCube(type, false);
         if (capture != nullptr) {
+            // UDetectionComponent* detection = getDetectionComponent(type, false);
+            UDetectionComponent* detection = nullptr;
             if (is_enabled) {
                 //do not make unnecessary calls to Activate() which otherwise causes crash in Unreal
                 if (!capture->IsActive() || capture->TextureTarget == nullptr) {
