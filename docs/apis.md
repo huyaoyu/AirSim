@@ -108,7 +108,7 @@ print('Retrieved images: %d', len(responses))
 for response in responses:
     if response.pixels_as_float:
         print("Type %d, size %d" % (response.image_type, len(response.image_data_float)))
-        airsim.write_pfm(os.path.normpath('/temp/py1.pfm'), airsim.getPfmArray(response))
+        airsim.write_pfm(os.path.normpath('/temp/py1.pfm'), airsim.get_pfm_array(response))
     else:
         print("Type %d, size %d" % (response.image_type, len(response.image_data_uint8)))
         airsim.write_file(os.path.normpath('/temp/py1.png'), response.image_data_uint8)
@@ -150,6 +150,10 @@ The `is_enabled` parameter must be `True` to enable time of day effect. If it is
 
 Other parameters are same as in [settings](settings.md#timeofday).
 
+### Line-of-sight and world extent APIs
+To test line-of-sight in the sim from a vehicle to a point or between two points, see simTestLineOfSightToPoint(point, vehicle_name) and simTestLineOfSightBetweenPoints(point1, point2), respectively.
+Sim world extent, in the form of a vector of two GeoPoints, can be retrieved using simGetWorldExtents().
+
 ### Weather APIs
 By default all weather effects are disabled. To enable weather effect, first call:
 
@@ -178,7 +182,7 @@ class WeatherParameter:
 
 Please note that `Roadwetness`, `RoadSnow` and `RoadLeaf` effects requires adding [materials](https://github.com/Microsoft/AirSim/tree/master/Unreal/Plugins/AirSim/Content/Weather/WeatherFX) to your scene.
 
-Please see [example code](https://github.com/Microsoft/AirSim/blob/master/PythonClient/computer_vision/weather.py) for more details.
+Please see [example code](https://github.com/Microsoft/AirSim/blob/master/PythonClient/environment/weather.py) for more details.
 
 ### Recording APIs
 
@@ -192,7 +196,7 @@ Similarly, to stop recording, use `client.stopRecording()`. To check whether Rec
 
 This API works alongwith toggling Recording using R button, therefore if it's enabled using R key, `isRecording()` will return `True`, and recording can be stopped via API using `stopRecording()`. Similarly, recording started using API will be stopped if R key is pressed in Viewport. LogMessage will also appear in the top-left of the viewport if recording is started or stopped using API.
 
-Note that this will only save the data as specfied in the settings. For full freedom in storing data such as certain sensor information, or in a different format or layout, use the other APIs to fetch the data and save as desired.
+Note that this will only save the data as specfied in the settings. For full freedom in storing data such as certain sensor information, or in a different format or layout, use the other APIs to fetch the data and save as desired. Check out [Modifying Recording Data](modify_recording_data.md) for details on how to modify the kinematics data being recorded.
 
 ### Wind API
 
@@ -271,10 +275,8 @@ Generally speaking, APIs therefore shouldn't allow you to do something that cann
 The AirLib is self-contained library that you can put on an offboard computing module such as the Gigabyte barebone Mini PC. This module then can talk to the flight controllers such as PX4 using exact same code and flight controller protocol. The code you write for testing in the simulator remains unchanged. See [AirLib on custom drones](custom_drone.md).
 
 ## Adding New APIs to AirSim
-Adding new APIs requires modifying the source code. Much of the changes are mechanical and required for various levels of abstractions that AirSim supports. [This commit](https://github.com/Microsoft/AirSim/commit/f0e83c29e7685e1021185e3c95bfdaffb6cb85dc) demonstrates how to add a simple API `simPrintLogMessage` that prints message in simulator window.
 
-## Some Internals
-The APIs use [msgpack-rpc protocol](https://github.com/msgpack-rpc/msgpack-rpc) over TCP/IP through [rpclib](http://rpclib.net/) developed by [TamÃ¡s Szelei](https://github.com/sztomi) which allows you to use variety of programming languages including C++, C#, Python, Java etc. When AirSim starts, it opens port 41451 (this can be changed via [settings](settings.md)) and listens for incoming request. The Python or C++ client code connects to this port and sends RPC calls using [msgpack serialization format](https://msgpack.org).
+See the [Adding New APIs](adding_new_apis.md) page
 
 ## References and Examples
 

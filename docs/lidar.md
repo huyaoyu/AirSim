@@ -33,12 +33,13 @@ VerticalFOVLower          | Vertical FOV lower limit for the lidar, in degrees
 X Y Z                     | Position of the lidar relative to the vehicle (in NED, in meters)
 Roll Pitch Yaw            | Orientation of the lidar relative to the vehicle  (in degrees, yaw-pitch-roll order to front vector +X)
 DataFrame                 | Frame for the points in output ("VehicleInertialFrame" or "SensorLocalFrame")
+ExternalController        | Whether data is to be sent to external controller such as ArduPilot or PX4 if being used (default `true`) (PX4 doesn't send Lidar data currently)
 
 e.g.
 
 ```json
 {
-    "SeeDocsAt": "https://github.com/Microsoft/AirSim/blob/master/docs/settings_json.md",
+    "SeeDocsAt": "https://microsoft.github.io/AirSim/settings/",
     "SettingsVersion": 1.2,
 
     "SimMode": "Multirotor",
@@ -113,6 +114,8 @@ Use `getLidarData()` API to retrieve the Lidar data.
 ### Python Examples
 - [drone_lidar.py](https://github.com/microsoft/AirSim/blob/master/PythonClient/multirotor/drone_lidar.py)
 - [car_lidar.py](https://github.com/microsoft/AirSim/blob/master/PythonClient/car/car_lidar.py)
+- [sensorframe_lidar_pointcloud.py](https://github.com/microsoft/AirSim/blob/master/PythonClient/multirotor/sensorframe_lidar_pointcloud.py)
+- [vehicleframe_lidar_pointcloud.py](https://github.com/microsoft/AirSim/blob/master/PythonClient/multirotor/vehicleframe_lidar_pointcloud.py)
 
 ## Coming soon
 * Visualization of lidar data on client side.

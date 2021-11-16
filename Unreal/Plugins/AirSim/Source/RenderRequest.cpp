@@ -90,11 +90,11 @@ void RenderRequest::getScreenshot(std::shared_ptr<RenderParams> params[], std::v
                 // rendering commands to RenderThread. Hence, our ExecuteTask will
                 // execute *immediately* after RenderThread renders the scene!
                 RenderRequest* This = this;
-                ENQUEUE_RENDER_COMMAND(SceneDrawCompletion)(
-                [This](FRHICommandListImmediate& RHICmdList)
-                {
-                    This->ExecuteTask();
-                });
+                ENQUEUE_RENDER_COMMAND(SceneDrawCompletion)
+                (
+                    [This](FRHICommandListImmediate& RHICmdList) {
+                        This->ExecuteTask();
+                    });
 
                 game_viewport_->bDisableWorldRendering = saved_DisableWorldRendering_;
 
@@ -253,8 +253,7 @@ bool RenderRequest::unWarpTextureRenderTargetCube( const UTextureRenderTargetCub
 
 void RenderRequest::ExecuteTask()
 {
-    if (params_ != nullptr && req_size_ > 0)
-    {
+    if (params_ != nullptr && req_size_ > 0) {
         for (unsigned int i = 0; i < req_size_; ++i) {
             // Cube.
             if ( params_[i]->is_cube ) {

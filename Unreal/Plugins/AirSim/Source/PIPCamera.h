@@ -10,18 +10,17 @@
 #include "common/common_utils/Utils.hpp"
 #include "common/AirSimSettings.hpp"
 #include "NedTransform.h"
+#include "DetectionComponent.h"
 
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "PIPCamera.generated.h"
 
-
 UCLASS()
 class AIRSIM_API APIPCamera : public ACameraActor
 {
     GENERATED_BODY()
-    
 
 public:
     typedef msr::airlib::ImageCaptureBase::ImageType ImageType;
@@ -47,15 +46,18 @@ public:
 
     void setCameraTypeEnabled(ImageType type, bool enabled);
     bool getCameraTypeEnabled(ImageType type) const;
-    void setupCameraFromSettings(const APIPCamera::CameraSetting& camera_setting, const NedTransform& ned_transform);
-    void setCameraPose(const FTransform& pose);
+    void setupCameraFromSettings(const CameraSetting& camera_setting, const NedTransform& ned_transform);
+    void setCameraPose(const msr::airlib::Pose& relative_pose);
     void setCameraFoV(float fov_degrees);
+    msr::airlib::CameraInfo getCameraInfo() const;
+    std::vector<float> getDistortionParams() const;
+    void setDistortionParam(const std::string& param_name, float value);
 
-    msr::airlib::ProjectionMatrix getProjectionMatrix(const APIPCamera::ImageType image_type) const;
-
+    msr::airlib::ProjectionMatrix getProjectionMatrix(const ImageType image_type) const;
 
     USceneCaptureComponent2D* getCaptureComponent(const ImageType type, bool if_active);
     UTextureRenderTarget2D* getRenderTarget(const ImageType type, bool if_active);
+    UDetectionComponent* getDetectionComponent(const ImageType type, bool if_active) const;
 
     // Cube.
     USceneCaptureComponentCube* getCaptureComponentCube( const ImageType type, bool if_active );
@@ -65,24 +67,37 @@ public:
 
     msr::airlib::Pose getPose() const;
 
-    UPROPERTY() UMaterialParameterCollection* distortion_param_collection_;
-    UPROPERTY() UMaterialParameterCollectionInstance* distortion_param_instance_;
-    
 private: //members
-    UPROPERTY() TArray<USceneCaptureComponent2D*> captures_;
-    UPROPERTY() TArray<UTextureRenderTarget2D*> render_targets_;
+    UPROPERTY()
+    UMaterialParameterCollection* distortion_param_collection_;
+    UPROPERTY()
+    UMaterialParameterCollectionInstance* distortion_param_instance_;
+
+    UPROPERTY()
+    TArray<USceneCaptureComponent2D*> captures_;
+    UPROPERTY()
+    TArray<UTextureRenderTarget2D*> render_targets_;
+    UPROPERTY()
+    TArray<UDetectionComponent*> detections_;
 
     // Cube.
-    UPROPERTY() TArray<USceneCaptureComponentCube*> captures_cube_;
-    UPROPERTY() TArray<UTextureRenderTargetCube*> render_targets_cube_;
+    UPROPERTY() 
+    TArray<USceneCaptureComponentCube*> captures_cube_;
+    UPROPERTY() 
+    TArray<UTextureRenderTargetCube*> render_targets_cube_;
 
-    UPROPERTY() UCameraComponent*  camera_;
+    UPROPERTY()
+    UCameraComponent* camera_;
     //TMap<int, UMaterialInstanceDynamic*> noise_materials_;
     //below is needed because TMap doesn't work with UPROPERTY, but we do have -ve index
-    UPROPERTY() TArray<UMaterialInstanceDynamic*> noise_materials_;
-    UPROPERTY() TArray<UMaterialInstanceDynamic*> distortion_materials_;
-    UPROPERTY() UMaterial* noise_material_static_;
-    UPROPERTY() UMaterial* distortion_material_static_;
+    UPROPERTY()
+    TArray<UMaterialInstanceDynamic*> noise_materials_;
+    UPROPERTY()
+    TArray<UMaterialInstanceDynamic*> distortion_materials_;
+    UPROPERTY()
+    UMaterial* noise_material_static_;
+    UPROPERTY()
+    UMaterial* distortion_material_static_;
 
     std::vector<bool> camera_type_enabled_;
     FRotator gimbald_rotator_;
@@ -92,6 +107,7 @@ private: //members
 
     // Cube.
     std::vector<bool> cube_nearest_flag_;
+    FObjectFilter object_filter_;
 
 private: //methods
     typedef common_utils::Utils Utils;
