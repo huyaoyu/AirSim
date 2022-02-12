@@ -101,13 +101,29 @@ public class AirSim : ModuleRules
 
         // Customized interpolation.
         PublicIncludePaths.Add(Path.Combine(CustomizedInterpolationPath, "include"));
-        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_core.a"));
-        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_highgui.a"));
-        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_imgcodecs.a"));
-        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_imgproc.a"));
-        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libippicv.a"));
-        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libippiw.a"));
-        PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libzlib.a"));
+        if (Target.Platform == UnrealTargetPlatform.Linux)
+		{
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_core.a"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_highgui.a"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_imgcodecs.a"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libopencv_imgproc.a"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libippicv.a"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libippiw.a"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "libzlib.a"));
+        }
+        
+        if (Target.Platform == UnrealTargetPlatform.Win64)
+        {
+            // string boost_root = Environment.GetEnvironmentVariable("BOOST_ROOT");
+            // PublicIncludePaths.Add(boost_root);
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "opencv_core420.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "opencv_highgui420.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "opencv_imgcodecs420.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "opencv_imgproc420.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "ippicvmt.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "ippiw.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "zlib.lib"));
+        }
 
         AddOSLibDependencies(Target);
 

@@ -45,6 +45,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stereoPipeline", "SGM\src\s
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloSpawnedDrones", "HelloSpawnedDrones\HelloSpawnedDrones.vcxproj", "{99CBF376-5EBA-4164-A657-E7D708C9D685}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CustomizedInterpolation", "CustomizedInterpolation\CustomizedInterpolation.vcxproj", "{B857F6AB-0285-4E38-A061-27699D03B863}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -307,6 +309,26 @@ Global
 		{99CBF376-5EBA-4164-A657-E7D708C9D685}.RelWithDebInfo|x64.Build.0 = RelWithDebInfo|x64
 		{99CBF376-5EBA-4164-A657-E7D708C9D685}.RelWithDebInfo|x86.ActiveCfg = RelWithDebInfo|Win32
 		{99CBF376-5EBA-4164-A657-E7D708C9D685}.RelWithDebInfo|x86.Build.0 = RelWithDebInfo|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Debug|ARM.ActiveCfg = Debug|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Debug|x64.ActiveCfg = Debug|x64
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Debug|x64.Build.0 = Debug|x64
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Debug|x86.ActiveCfg = Debug|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Debug|x86.Build.0 = Debug|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Release|Any CPU.ActiveCfg = Release|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Release|ARM.ActiveCfg = Release|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Release|x64.ActiveCfg = Release|x64
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Release|x64.Build.0 = Release|x64
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Release|x86.ActiveCfg = Release|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.Release|x86.Build.0 = Release|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.RelWithDebInfo|Any CPU.ActiveCfg = Debug|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.RelWithDebInfo|Any CPU.Build.0 = Debug|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.RelWithDebInfo|ARM.ActiveCfg = Debug|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.RelWithDebInfo|ARM.Build.0 = Debug|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.RelWithDebInfo|x64.ActiveCfg = Release|x64
+		{B857F6AB-0285-4E38-A061-27699D03B863}.RelWithDebInfo|x64.Build.0 = Release|x64
+		{B857F6AB-0285-4E38-A061-27699D03B863}.RelWithDebInfo|x86.ActiveCfg = Release|Win32
+		{B857F6AB-0285-4E38-A061-27699D03B863}.RelWithDebInfo|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

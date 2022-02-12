@@ -204,6 +204,9 @@ if NOT exist Unreal\Plugins\AirSim\Source\AirLib mkdir Unreal\Plugins\AirSim\Sou
 robocopy /MIR AirLib Unreal\Plugins\AirSim\Source\AirLib  /XD temp *. /njh /njs /ndl /np
 copy /y AirSim.props Unreal\Plugins\AirSim\Source\AirLib
 
+if NOT exist Unreal\Plugins\AirSim\Source\CustomizedInterpolation mkdir Unreal\Plugins\AirSim\Source\CustomizedInterpolation
+robocopy /MIR CustomizedInterpolation Unreal\Plugins\AirSim\Source\CustomizedInterpolation /XD temp *. /njh /njs /ndl /np
+
 REM //---------- done building ----------
 exit /b 0
 
