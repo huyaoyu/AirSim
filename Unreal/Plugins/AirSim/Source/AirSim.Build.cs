@@ -89,7 +89,7 @@ public class AirSim : ModuleRules
         bEnableExceptions = true;
 
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ImageWrapper", "RenderCore", "RHI", "AssetRegistry", "PhysicsCore", "PhysXVehicles", "PhysXVehicleLib", "PhysX", "APEX", "Landscape" });
-        PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore", "zlib" });
 
         //suppress VC++ proprietary warnings
         PublicDefinitions.Add("_SCL_SECURE_NO_WARNINGS=1");
@@ -122,7 +122,7 @@ public class AirSim : ModuleRules
             PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "opencv_imgproc420.lib"));
             PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "ippicvmt.lib"));
             PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "ippiw.lib"));
-            PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "zlib.lib"));
+            // PublicAdditionalLibraries.Add(Path.Combine(CustomizedInterpolationPath, "lib", "x64", "Release", "zlib.lib"));
         }
 
         AddOSLibDependencies(Target);
