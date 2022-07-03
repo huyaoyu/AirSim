@@ -197,8 +197,8 @@ void Planar2FullView::create_map_xy() {
     const float seven_fourth_pi = 7 * one_fourth_pi;
     const float two_pi          = 2 * pi;
 
-    const float factor_lat = pi / out_h;
-    const float factor_lon = two_pi / out_w;
+    const float factor_lat = pi / (out_h-1);     // Allow the latitude angle to reach pi.
+    const float factor_lon = two_pi / (out_w-1); // Allow the longitude angle to reach 2pi. This is by design.
 
     // The starting index of the individual faces in the image cross.
     const auto idx_pos_x = get_face_start_index(FaceName::POS_X);
