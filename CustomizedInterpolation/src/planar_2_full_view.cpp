@@ -208,6 +208,8 @@ void Planar2FullView::create_map_xy() {
     const auto idx_pos_z = get_face_start_index(FaceName::POS_Z);
     const auto idx_neg_z = get_face_start_index(FaceName::NEG_Z);
 
+    // TODO: There might be an error for the definition of pixel coordinates.
+    // Refer to mvs_utils for more details. 20230404 by Yaoyu.
     const int height_1 = height - 1;
     const int width_1  = width  - 1;
 
